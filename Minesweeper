@@ -1,0 +1,415 @@
+import java.util.Random;
+/**
+ * makes random maps given the length and width
+ * uses a matrix to hold all the numbers and bombs
+ * creates another matrix to interact with
+ *      changes as the user makes guesses
+ * draws maps
+ * checks if the inputed tile is a bomb
+ *      if so: lets the user know and ends the game
+ *      else: chages the matrix to show the number of surrounding bombs
+ * keeps track of the walker and changes it cords when needed
+ * public variable "end" that can be called or called or changed to end
+ * 
+ * @author (Kien Chin) 
+ * @version (11/24/14)
+ */
+public class Minesweeper
+{
+    private int x; //dimentions
+    private int y;
+    private double probz;//probability for random bombs
+    private String[][] matrix;//info holder matrix
+    private String[][] map;//user interface matrix
+    //private int numBombs = 0;//number of bombs (to be counted)
+    //private int[] bombLoc;
+    public int xCord = 0;//walker location
+    public int yCord = 0;
+    private int number = 0;//for bomb counter methods
+    public boolean end = false;// end game?
+    private int count;//for counting
+    public int missed = 0;//for done method, public cause i'm lazy
+    //constructer
+    //creates all the maps and stuff for the class
+    public Minesweeper(int xstuff, int ystuff, double probability)
+    {
+        this.x = xstuff;
+        this.y = ystuff;
+        this.probz = probability;
+        matrix = new String[ystuff][xstuff];
+        map = new String[ystuff][xstuff];
+        createMap(); //places bombs randomly in matrix
+        
+        //bombLoc = new int[numBombs * 2];
+        
+        numberMap();//finds number of surounding 
+                    //bombs for each tile in matrix
+        
+        blankMap();//sets map to all blank tiles (.)
+    }
+    //sets the map array to all "." aka blank tiles
+    public void blankMap()
+    {
+         for (int i = 0; i < this.matrix.length; i++)
+        {
+            for (int j = 0; j < this.matrix[i].length; j++)
+            {
+                map[i][j] = ".";//sets to blank tile
+            }
+        }
+    }
+    //randomly places bombs in the matrix matrix
+    public void createMap()
+    {
+         for (int i = 0; i < this.matrix.length; i++)
+        {
+            for (int j = 0; j < this.matrix[i].length; j++)
+            {
+                if (randomNum() < probz)
+                {
+                    this.matrix[i][j] = "*";//sets to a bomb
+                    //this.numBombs++;
+                }
+                else this.matrix[i][j] = ".";
+                //System.out.printf(this.matrix[i][j] + " ");
+            }
+            //System.out.println();
+        }
+    }
+    //returns a random double
+    public static double randomNum()
+    {
+        Random generator = new Random();
+        int randNum = generator.nextInt(100) + 1;
+        double whyDoINeedThis = randNum;
+        double finalNum = (whyDoINeedThis / 100);
+        return finalNum;
+    }
+    //determins each tiles position
+    //uses bombcounter methods to count surrounding bombs
+    //  methods return either bomb (-1) or numbombs
+    //places the value into the matrix
+    //repeates until the end of the matrix
+    public void numberMap()
+    {
+        //this.count = 0;
+         for (int i = 0; i < this.matrix.length; i++)
+        {
+            for (int j = 0; j < this.matrix[i].length; j++)
+            {
+                
+                if (i == 0 && j == 0)
+                    number = numBombsTopLeft(i, j);
+                else if (i == 0 && j == matrix[i].length - 1)
+                    number = numBombsBottomLeft(i, j);
+                else if (i == matrix.length -1 && j == matrix[i].length -1)
+                    number = numBombsTopRight(i, j);
+                else if (i == matrix.length - 1 && j == 0)
+                    number = numBombsBottomRight(i, j);
+                else if (i == 0)
+                    number = numBombsLeft(i, j);
+                else if (j == 0)
+                    number = numBombsTop(i, j);
+                else if (i == matrix.length -1)
+                    number = numBombsRight(i, j);
+                else if (j == matrix[i].length -1)
+                    number = numBombsBottom(i, j);
+                else
+                    number = numBombs(i, j);
+                if (number == -1)
+                {
+                    //this.bombLoc[count] = i;
+                    //count++;
+                    //this.bombLoc[count] = j;
+                    //count++;
+                    matrix[i][j] = "*";
+                }
+                else
+                    matrix[i][j] = (number + "");
+            }
+        }
+    }
+    //clears the screen
+    //prints instructions
+    //draws the map
+    //if the x and y cords are the same as the walkers
+    //      prints the walker (@) in the space betwen tiles
+    //  else 
+    //      prints a space
+    public void draw()
+    {
+        System.out.println("\u000c");
+        //for (int i = 0; i < this.matrix.length; i++)
+        //{
+        //    for (int j = 0; j < this.matrix[i].length; j++)
+        //    {
+        //        System.out.printf(this.matrix[i][j] + " ");
+        //    }
+        //    System.out.println();
+        //}
+        System.out.println("(WASD + enter), e: Guess, q: Quit f: Finish" + 
+                           "b: Bomb");
+        for (int i = 0; i < this.matrix.length; i++)
+        {
+            for (int j = 0; j < this.matrix[i].length; j++)
+            {
+                if (this.xCord == j && this.yCord == i)
+                    System.out.print("@");
+                else System.out.print(" ");
+                //if (map[i][j].equals("*"))
+                    //
+                    System.out.print(map[i][j]);
+            }
+            System.out.println();
+        }
+    }
+    //input (x + y cords)
+    //if the x and y represent a bomb
+    //      ends game
+    //  else
+    //      sets the tile in map to the corresponding
+    //      tile in matrix
+    public String guess(int i, int j)
+    {
+        if (matrix[j][i].equals("*"))
+        {   
+            this.end = true;
+            return "*";
+        }
+        else 
+        {
+            map[j][i] = matrix[j][i];
+            //if (map[j][i].equals("*"))
+                //return "*";
+            return map[j][i];
+        } 
+    }
+    
+    //goes through every tile
+    //if tile is blank (.) and not a bomb (*)
+    //      ends game
+    //      returns false (lose)
+    //  else 
+    //      returns win (true)
+    public boolean done()
+    {
+        for (int i = 0; i < this.matrix.length; i++)
+        {
+            for (int j = 0; j < this.matrix[i].length; j++)
+            {
+                if (map[i][j].equals(".") || map[i][j].equals("X"))
+                {
+                    if (!matrix[i][j].equals("*"))
+                    {
+                        missed++;
+                    }
+                }
+            }
+            
+        }
+        this.end = true;
+        if (missed > 0)
+        {
+            return false;
+        }else  return true;
+    }
+    //prints out the matrix with bombs and numbers
+    //  like at th end of a real minesweeper game
+    public void printMatrix()
+    {
+        System.out.println("\u000c");
+        for (int i = 0; i < this.matrix.length; i++)
+        {
+            for (int j = 0; j < this.matrix[i].length; j++)
+            {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+    
+    public void setBomb()
+    {
+        map[this.yCord][this.xCord] = "X";
+        
+    }
+    
+    
+    
+    
+    //find number of bombs surrounding the tile
+    //input x and y cords
+    //output the number or -1 it the tile is a bomb
+    public int numBombs(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i-1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i-1][j].equals("*"))
+            total++;
+        if (this.matrix[i-1][j+1].equals("*"))
+            total++;
+        if (this.matrix[i][j-1].equals("*"))
+            total++;
+        if (this.matrix[i][j+1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j].equals("*"))
+            total++;
+        if (this.matrix[i+1][j+1].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsTopLeft(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i+1][j].equals("*"))
+            total++;
+        if (this.matrix[i+1][j+1].equals("*"))
+            total++;
+        if (this.matrix[i][j+1].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsLeft(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i][j-1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j].equals("*"))
+            total++;
+        if (this.matrix[i+1][j+1].equals("*"))
+            total++;
+        if (this.matrix[i][j+1].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsBottomLeft(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i][j-1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsTop(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i-1][j].equals("*"))
+            total++;
+        if (this.matrix[i-1][j+1].equals("*"))
+            total++;
+        if (this.matrix[i][j+1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j+1].equals("*"))
+            total++;
+        if (this.matrix[i+1][j].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsTopRight(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i-1][j].equals("*"))
+            total++;
+        if (this.matrix[i-1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i][j-1].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsRight(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i][j-1].equals("*"))
+            total++;
+        if (this.matrix[i-1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i-1][j].equals("*"))
+            total++;
+        if (this.matrix[i-1][j+1].equals("*"))
+            total++;
+        if (this.matrix[i][j+1].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsBottomRight(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i][j+1].equals("*"))
+            total++;
+        if (this.matrix[i-1][j+1].equals("*"))
+            total++;
+        if (this.matrix[i-1][j].equals("*"))
+            total++;
+        return total;
+    }
+    public int numBombsBottom(int i, int j)
+    {
+        int total = 0;
+        if (this.matrix[i][j].equals("*"))
+            return -1;
+        if (this.matrix[i+1][j].equals("*"))
+            total++;
+        if (this.matrix[i+1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i][j-1].equals("*"))
+            total++;
+        if (this.matrix[i-1][j-1].equals("*"))
+            total++;
+        if (this.matrix[i-1][j].equals("*"))
+            total++;
+        return total;
+    }
+    
+    //mover methods
+    //change the cords of the walker
+    //if walker moves out of bounds
+    //      moves him to the other side
+    public void moveUp()
+    {
+        this.yCord = this.yCord - 1;
+        if (this.yCord < 0)
+            this.yCord = this.y - 1;
+    }
+    public void moveDown()
+    {
+        this.yCord = this.yCord + 1;
+        if (this.yCord > this.y - 1)
+            this.yCord = 0;
+    }
+    public void moveLeft()
+    {
+        this.xCord = this.xCord - 1;
+        if (this.xCord < 0)
+            this.xCord = this.x - 1;
+    }
+    public void moveRight()
+    {
+        this.xCord = this.xCord + 1;
+        if (this.xCord > this.x - 1)
+            this.xCord = 0;
+    }
+}
