@@ -1,0 +1,147 @@
+import java.util.Scanner;
+/**
+ * Write a description of class MineDriver here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class MineDriver
+{
+    public static void main(String[] args)
+    {
+        Scanner keyboard = new Scanner(System.in);
+        boolean again = true;
+        //because the dumb program thinks that bob might
+        //not have been initialized
+        Minesweeper bob = new Minesweeper(2, 2, .1);
+        while (again)
+        {
+            //clear the screen for repeated run-throughs
+            System.out.println("\u000c");
+            boolean valid = false;
+            boolean end = false;// for the while loop
+            while (!valid)
+            {
+                System.out.println("do you want to play :");
+                System.out.println("1: small map");
+                System.out.println("2: medium map");
+                System.out.println("3: large map");
+                System.out.println("4: your own map");
+                System.out.println("5: quit");
+                int choice = keyboard.nextInt();
+                
+                if (choice == 1)
+                {
+                    bob = new Minesweeper(5, 5, .185);
+                    valid = true;
+                }
+                
+                if (choice == 2)
+                {
+                    bob = new Minesweeper(8, 8, .185);
+                    valid = true;
+                }
+                
+                if (choice == 3)
+                {
+                    bob = new Minesweeper(12, 12, .185);
+                    valid = true;
+                }
+                
+                if (choice == 4)
+                {
+                    System.out.print("x (length): ");
+                    int x = keyboard.nextInt();
+                    System.out.print("\ny (length): ");
+                    int y = keyboard.nextInt();
+                    System.out.print("\nProbability (0-1): ");
+                    double probz = keyboard.nextDouble();            
+                    bob = new Minesweeper(x, y, probz);
+                    valid = true;
+                }
+                if (choice == 5)//end both loops
+                {
+                    valid = true;
+                    end = true;
+                }
+                else 
+                {
+                    System.out.println("invalid input");
+                    
+                }
+            }
+            
+            if (!end == true)// if user didn't hit 5 (quit)
+                bob.draw();
+            
+            while (!end)
+            {
+                //gets the first character the user entered.
+                char move = keyboard.next().charAt(0);
+                if (move == 'w')// up
+                {
+                    bob.moveUp();
+                    bob.draw();
+                }
+                if (move == 'a')// left
+                {                    
+                    bob.moveLeft();
+                    bob.draw();
+                }
+                if (move == 's')// down
+                {                    
+                    bob.moveDown();
+                    bob.draw();
+                }
+                if (move == 'd')// right
+                {                    
+                    bob.moveRight();
+                    bob.draw();
+                }
+                //checks if the boolean variable end, in the bob class is true
+                //if so character + coin are in the same location
+                //ending the game
+                if (move == 'f')
+                {
+                    boolean win = bob.done();
+                    bob.printMatrix();
+                    
+                    if (win)
+                    {
+                         System.out.println("YOU WIN!");
+                    } else System.out.println("you missed " + bob.missed);
+                }
+                if (move == 'e')
+                {
+                    String answer = bob.guess(bob.xCord, bob.yCord);
+                    if (answer.equals("*"))
+                    {
+                        bob.printMatrix();
+                        System.out.println("BOOM, ur dead (>_<)");
+                        
+                    }
+                    else
+                        bob.draw();
+                }
+                if (move == 'b')
+                {
+                    bob.setBomb();
+                    bob.draw();
+                }
+                if (bob.end == true)
+                {
+                    end = true;
+                }
+                if (move == 'q')
+                {                   
+                    end = true;
+                }
+                //else System.out.println("invalid input");
+            }
+            System.out.print("wanna do it again? (y/n): ");
+            if (keyboard.next().equals("n"))
+                again = false;
+        }
+        System.out.println("Goodbye :D");
+    }
+}
